@@ -1,0 +1,84 @@
+{
+  "name": "remoteA",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/remoteA/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "apps/remoteA/dist",
+        "index": "apps/remoteA/src/index.html",
+        "baseHref": "/",
+        "main": "apps/remoteA/src/main.ts",
+        "tsConfig": "apps/remoteA/tsconfig.app.json",
+        "assets": ["apps/remoteA/src/favicon.ico", "apps/remoteA/src/assets"],
+        "styles": ["apps/remoteA/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "apps/remoteA/webpack.config.ts"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/remoteA/src/environments/environment.ts",
+              "with": "apps/remoteA/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "webpackConfig": "apps/remoteA/webpack.config.prod.ts"
+        }
+      },
+      "dependsOn": ["^build", "typecheck"]
+    },
+    "serve": {
+      "executor": "@nx/react:module-federation-dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "remoteA:build",
+        "hmr": true,
+        "port": 4201
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "remoteA:build:development"
+        },
+        "production": {
+          "buildTarget": "remoteA:build:production",
+          "hmr": false
+        }
+      },
+      "dependsOn": ["typecheck"]
+    },
+    "serve-static": {
+      "executor": "@nx/react:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "remoteA:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "remoteA:serve:development"
+        },
+        "production": {
+          "serveTarget": "remoteA:serve:production"
+        }
+      }
+    }
+  }
+}
